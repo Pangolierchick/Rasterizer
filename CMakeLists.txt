@@ -7,18 +7,20 @@ add_compile_options(-Wall -Wextra)
 
 include_directories(./lib/vector)
 include_directories(./lib/TgaImage)
-include_directories(./lib/Drawing)
 
 add_subdirectory(./lib/TgaImage)
-add_subdirectory(./lib/Drawing)
 
 
 
 set(SOURCE_DIR ./src)
 set(SOURCES
         ${SOURCE_DIR}/main.cpp
+        ${SOURCE_DIR}/abstractDrawer.h
+        ${SOURCE_DIR}/tgaDrawer.cpp
+        ${SOURCE_DIR}/tgaDrawer.h
+
         )
 
 add_executable(Rasterizer ${SOURCES})
 
-target_link_libraries(Rasterizer TgaImage Drawing)
+target_link_libraries(Rasterizer TgaImage)

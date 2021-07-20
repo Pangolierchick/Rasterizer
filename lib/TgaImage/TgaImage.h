@@ -56,6 +56,7 @@ public:
 
     uint8_t length() const { return bytespp; }
     uint8_t *raw() { return bgra; }
+    const uint8_t *raw() const { return bgra; }
 
 private:
     uint8_t bgra[4];
@@ -98,7 +99,7 @@ public:
 
     TgaColor get(size_t x, size_t y) const;
 
-    void set(size_t x, size_t y, TgaColor &c);
+    void set(size_t x, size_t y, const TgaColor &c);
 
     size_t width() const { return _width; }
 

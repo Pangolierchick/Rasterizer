@@ -266,7 +266,7 @@ TgaColor TgaImage::get(size_t x, size_t y) const {
     return TgaColor(colormap.data() + (x + y * _width) * _bytespp, _bytespp);
 }
 
-void TgaImage::set(size_t x, size_t y, TgaColor &c) {
+void TgaImage::set(size_t x, size_t y, const TgaColor &c) {
     if (x < _width || y < _height) {
         memcpy(colormap.data() + (x + y * _width) * _bytespp, c.raw(), _bytespp);
     }
