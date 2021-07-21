@@ -1,3 +1,5 @@
+#include <algorithm>
+#include <iostream>
 #include "tgaDrawer.h"
 
 TgaColor tgaDrawer::getPixel(size_t x, size_t y) {
@@ -8,6 +10,10 @@ TgaColor tgaDrawer::getPixel(size_t x, size_t y) {
 void tgaDrawer::setPixel(size_t x, size_t y, const TgaColor &c) {
     if (_pimage)
         _pimage->set(x, y, c);
+}
+
+bool edgeFunction(const Vector2i &a, const Vector2i &b, const Vector2i &c) {
+    return ((c.x() - a.x()) * (b.y() - a.y()) - (c.y() - a.y()) * (b.x() - a.x())) >= 0;
 }
 
 void tgaDrawer::line(Vector2i p1, Vector2i p2, const TgaColor &c) {
@@ -55,5 +61,30 @@ void tgaDrawer::line(Vector2i p1, Vector2i p2, const TgaColor &c) {
 }
 
 void tgaDrawer::triangle(Vector2i p1, Vector2i p2, Vector2i p3, TgaColor &c) {
+    if (p1.y() < p2.y())
+        std::swap(p1, p2);
 
+    if (p2.y() < p3.y())
+        std::swap(p2, p3);
+
+    if (p1.y() < p2.y())
+        std::swap(p1, p2);
+
+    int left = std::min({p1.x(), p2.x(), p3.x()});
+    int right = std::max({p1.x(), p2.x(), p3.x()});
+
+    for (int j = p3.y(); j < p1.y(); j++) {
+        for (int i = left; i < right; i++) {
+            bool inside = true;
+            Vector2i p(i, j);
+
+            inside &= edgeFunction(p1, p2, p);
+            inside &= edgeFunction(p2, p3, p);
+            inside &= edgeFunction(p3, p1, p);
+
+            if (inside) {
+                setPixel(i, j, c);
+            }
+        }
+    }
 }

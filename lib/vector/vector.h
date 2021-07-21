@@ -15,17 +15,21 @@ public:
         _y = v._y;
     }
 
-    explicit Vector2(const Vector2 &v) {
+    Vector2(const Vector2 &v) {
         _x = v._x;
         _y = v._y;
     }
 
     T &x() { return _x; }
-
     T &y() { return _y; }
 
-    Vector2 operator+(const Vector2 &v) { return Vector2(_x + v._x, _y + v._y); }
+    T x() const { return _x; }
+    T y() const { return _y; }
 
+    Vector2& operator=(const Vector2 &v) { _x = v._x; _y = v._y; return *this; }
+    Vector2& operator=(Vector2 &&v)  noexcept { _x = v._x; _y = v._y; return *this; }
+
+    Vector2 operator+(const Vector2 &v) { return Vector2(_x + v._x, _y + v._y); }
     Vector2 operator-(const Vector2 &v) { return Vector2(_x - v._x, _y - v._y); }
 
     T operator*(const Vector2 &v) { return _x * v._x + _y * v._y; }
@@ -75,17 +79,21 @@ public:
     }
 
 
-    explicit Vector3(const Vector3 &v) {
+    Vector3(const Vector3 &v) {
         _x = v._x;
         _y = v._y;
         _z = v._z;
     }
 
     T &x() { return _x; }
-
     T &y() { return _y; }
-
     T &z() { return _z; }
+
+    T x() const { return _x; }
+    T y() const { return _y; }
+    T z() const { return _z; }
+
+    Vector3& operator=(const Vector3 &v)  noexcept { _x = v._x; _y = v._y; _z = v._z; return *this; }
 
     Vector3 operator+(const Vector3 &v) { return Vector3(_x + v._x, _y + v._y, _z + v._z); }
 
@@ -140,7 +148,7 @@ public:
     }
 
 
-    explicit Vector4(const Vector4 &v) {
+    Vector4(const Vector4 &v) {
         _x = v._x;
         _y = v._y;
         _z = v._z;
