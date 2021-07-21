@@ -1,23 +1,19 @@
 #include <iostream>
 #include "TgaImage.h"
 #include "tgaDrawer.h"
-
-float edgeFunction(const Vector2f &a, const Vector2f &b, const Vector2f &c)
-{
-    return (c.x() - a.x()) * (b.y() - a.y()) - (c.y() - a.y()) * (b.x() - a.x());
-}
+#include "geometry.h"
 
 int main() {
-    auto *img = new TgaImage(512, 512, TgaImage::FORMAT::RGB);
+    auto *img = new TgaImage(1024, 1024, TgaImage::FORMAT::RGB);
     tgaDrawer drawer(img);
 
-    Vector2i v0 = {491, 411};
-    Vector2i v1 = {148, 68};
-    Vector2i v2 = {148, 411};
+    Vector3f v1 = {80, 80, 0};
+    Vector3f v2 = {30, 100, 0};
+    Vector3f v3 = {260, 230, 0};
 
-    TgaColor c = { 0, 128, 180 };
+    TgaColor r(0xff, 0, 0);
 
-    drawer.triangle(v0, v1, v2, c);
+    drawer.triangle(v2, v3, v1, r);
 
     img->dump("test.tga");
 

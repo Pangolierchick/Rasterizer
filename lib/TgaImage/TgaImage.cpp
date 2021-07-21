@@ -223,6 +223,7 @@ void TgaImage::unloadRle(std::ofstream &out) const {
 
 void TgaImage::scale(size_t w, size_t h) {
     if (w <= 0 || h <= 0 || colormap.empty()) return;
+
     std::vector<std::uint8_t> tdata(w * h * _bytespp, 0);
     size_t nscanline = 0;
     size_t oscanline = 0;

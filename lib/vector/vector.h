@@ -70,7 +70,7 @@ class Vector3 {
 public:
     Vector3() : _x(0), _y(0), _z(0) {}
 
-    Vector3(T x, T y, T z) : _x(x), _y(y), _z(z) {}
+    Vector3(T x, T y, T z=1) : _x(x), _y(y), _z(z) {}
 
     Vector3(Vector3 &&v) noexcept {
         _x = v._x;

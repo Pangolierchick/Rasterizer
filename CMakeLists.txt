@@ -18,6 +18,8 @@ set(SOURCES
         ${SOURCE_DIR}/abstractDrawer.h
         ${SOURCE_DIR}/tgaDrawer.cpp
         ${SOURCE_DIR}/tgaDrawer.h
+        ${SOURCE_DIR}/geometry.cpp
+        ${SOURCE_DIR}/geometry.h
 
         )
 

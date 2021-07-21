@@ -1,7 +1,6 @@
 #include <algorithm>
-#include <iostream>
+#include "geometry.h"
 #include "tgaDrawer.h"
-#include <cstdio>
 
 TgaColor tgaDrawer::getPixel(size_t x, size_t y) {
     if (_pimage)
@@ -13,16 +12,7 @@ void tgaDrawer::setPixel(size_t x, size_t y, const TgaColor &c) {
         _pimage->set(x, y, c);
 }
 
-bool edgeFunctionCW(const Vector2i &a, const Vector2i &b, const Vector2i &c) {
-    return ((a.x() - b.x()) * (c.y() - a.y()) - (a.y() - b.y()) * (c.x() - a.x())) >= 0;
-}
-
-bool edgeFunctionCCW(const Vector2i &a, const Vector2i &b, const Vector2i &c) {
-    return ((a.x() - b.x()) * (c.y() - a.y()) - (a.y() - b.y()) * (c.x() - a.x())) <= 0;
-}
-
-
-void tgaDrawer::line(Vector2i p1, Vector2i p2, const TgaColor &c) {
+void tgaDrawer::line(Vector3f p1, Vector3f p2, const TgaColor &c) {
     int x0 = p1.x();
     int x1 = p2.x();
 
@@ -66,37 +56,27 @@ void tgaDrawer::line(Vector2i p1, Vector2i p2, const TgaColor &c) {
     }
 }
 
-void tgaDrawer::triangle(Vector2i p1, Vector2i p2, Vector2i p3, TgaColor &c) {
-    if (p1.y() > p2.y())
-        std::swap(p1, p2);
+static Vector3f barycentric(Vector3f &p0, Vector3f &p1, Vector3f &p2, Vector3f &d) {
+    Vector3f u = cross(Vector3f(p2.x() - p0.x(), p1.x() - p0.x(), p0.x() - d.x()),
+                       Vector3f(p2.y() - p0.y(), p1.y() - p0.y(), p0.y() - d.y()));
 
-    if (p1.y() > p3.y())
-        std::swap(p1, p3);
+    if (std::abs(u.z()) < 1)
+        return Vector3f(-1, 1, 1);
 
-    if (p2.y() > p3.y())
-        std::swap(p2, p3);
+    return Vector3f(1.0f - (u.x() + u.y()) / u.z(), u.y() / u.z(), u.x() / u.z());
+}
 
-    int left = std::min({p1.x(), p2.x(), p3.x()});
-    int right = std::max({p1.x(), p2.x(), p3.x()});
+void tgaDrawer::triangle(Vector3f p1, Vector3f p2, Vector3f p3, TgaColor &c) {
+    auto l_r = std::minmax({p1.x(), p2.x(), p3.x()});
+    auto b_u = std::minmax({p1.y(), p2.y(), p3.y()});
 
-    bool (*edgeFunction)(const Vector2i &, const Vector2i &, const Vector2i &);
-
-    if (p2.x() == left) {
-        edgeFunction = edgeFunctionCW;
-    } else {
-        edgeFunction = edgeFunctionCCW;
-    }
-
-    for (int j = p1.y(); j < p3.y(); j++) {
-        for (int i = left; i < right; i++) {
+    for (int j = b_u.first; j < b_u.second; j++) {
+        for (int i = l_r.first; i < l_r.second; i++) {
             bool inside = true;
-            Vector2i p(i, j);
+            Vector3f p(i, j);
+            Vector3f screen = barycentric(p1, p2, p3, p);
 
-            inside &= edgeFunction(p1, p2, p);
-            inside &= edgeFunction(p2, p3, p);
-            inside &= edgeFunction(p3, p1, p);
-
-            if (inside) {
+            if (screen.x() >= 0 && screen.y() >= 0 && screen.z() >= 0) {
                 setPixel(i, j, c);
             }
         }
