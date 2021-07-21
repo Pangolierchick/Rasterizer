@@ -2,21 +2,22 @@
 #include "TgaImage.h"
 #include "tgaDrawer.h"
 
+float edgeFunction(const Vector2f &a, const Vector2f &b, const Vector2f &c)
+{
+    return (c.x() - a.x()) * (b.y() - a.y()) - (c.y() - a.y()) * (b.x() - a.x());
+}
+
 int main() {
-    auto *img = new TgaImage(300, 300, TgaImage::FORMAT::RGB);
+    auto *img = new TgaImage(512, 512, TgaImage::FORMAT::RGB);
     tgaDrawer drawer(img);
 
-    TgaColor red(0xff, 0, 0);
-    TgaColor blue(128, 0, 0xff);
+    Vector2i v0 = {491, 411};
+    Vector2i v1 = {148, 68};
+    Vector2i v2 = {148, 411};
 
-//    drawer.line(Vector2i(50, 50), Vector2i(230, 300), blue);
-//    drawer.line(Vector2i(50, 250), Vector2i(230, 10), red);
+    TgaColor c = { 0, 128, 180 };
 
-    Vector2i a(30, 30);
-    Vector2i b(150, 40);
-    Vector2i c(20, 160);
-
-    drawer.triangle(a, b, c, blue);
+    drawer.triangle(v0, v1, v2, c);
 
     img->dump("test.tga");
 
