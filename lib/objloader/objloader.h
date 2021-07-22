@@ -5,7 +5,16 @@
 
 namespace objloader {
 
+    enum OBJLOADER_ERRORS {
+        NO_ERROR,
+        NO_SUCH_FILE
+    };
+
+#ifdef OBJLOADER_USE_DOUBLE
+    using real_t = double;
+#else
     using real_t = float;
+#endif
 
     struct real3d {
         real_t x;
@@ -23,10 +32,14 @@ namespace objloader {
         std::vector<real3d> getVertices();
         std::vector<real2d> getTextureCoord();
         std::vector<real3d> getNormals();
-        std::vector<std::vector<uint64_t>> getFaceElems();
+        std::vector<std::vector<uint64_t>> getFaces();
 
         std::vector<uint64_t> getFace(uint64_t ind);
         real3d getVertex(uint64_t ind);
+
+        bool isSmooth();
+
+        std::string getName();
 
     private:
         std::vector<real3d> vertices;                       // v
@@ -41,7 +54,7 @@ namespace objloader {
 
     class Objloader {
     public:
-        Model load(std::string filename);
+        Model load(std::string filename, OBJLOADER_ERRORS &error);
     };
 };
 
