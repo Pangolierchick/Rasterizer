@@ -7,8 +7,10 @@ add_compile_options(-Wall -Wextra)
 
 include_directories(./lib/vector)
 include_directories(./lib/TgaImage)
+include_directories(./lib/objloader)
 
 add_subdirectory(./lib/TgaImage)
+add_subdirectory(./lib/objloader)
 
 
 
