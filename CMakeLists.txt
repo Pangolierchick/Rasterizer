@@ -27,4 +27,4 @@ set(SOURCES
 
 add_executable(Rasterizer ${SOURCES})
 
-target_link_libraries(Rasterizer TgaImage)
+target_link_libraries(Rasterizer TgaImage ObjLoader)
