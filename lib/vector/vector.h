@@ -93,6 +93,28 @@ public:
     T y() const { return _y; }
     T z() const { return _z; }
 
+    T& operator[](size_t i) {
+        switch (i) {
+            case 0:
+                return _x;
+            case 1:
+                return _y;
+            default:
+                return _z;
+        }
+    }
+
+    T operator[](size_t i) const {
+        switch (i) {
+            case 0:
+                return _x;
+            case 1:
+                return _y;
+            default:
+                return _z;
+        }
+    }
+
     Vector3& operator=(const Vector3 &v)  noexcept { _x = v._x; _y = v._y; _z = v._z; return *this; }
 
     Vector3 operator+(const Vector3 &v) { return Vector3(_x + v._x, _y + v._y, _z + v._z); }

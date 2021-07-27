@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include "vector.h"
 
 namespace objloader {
 
@@ -12,7 +13,8 @@ namespace objloader {
         NO_SUCH_FILE,
         NOT_ENOUGH_VERTEX_COORDINATES,
         BAD_COORDINATE,
-        UNKNOWN_TOKEN
+        UNKNOWN_TOKEN,
+        NOT_TRIANGULATED,
     };
 
 #ifdef OBJLOADER_USE_DOUBLE
@@ -21,23 +23,27 @@ namespace objloader {
     using real_t = float;
 #endif
 
-    struct real3d {
-        real3d(real_t _x, real_t _y, real_t _z) : x(_x), y(_y), z(_z) {}
+//    struct real3d {
+//        real3d(real_t _x, real_t _y, real_t _z) : x(_x), y(_y), z(_z) {}
+//
+//        real_t x;
+//        real_t y;
+//        real_t z;
+//    };
+//
+//    struct real2d {
+//        real2d(real_t _x, real_t _y) : x(_x), y(_y) {}
+//
+//        real_t x;
+//        real_t y;
+//    };
 
-        real_t x;
-        real_t y;
-        real_t z;
-    };
-
-    struct real2d {
-        real2d(real_t _x, real_t _y) : x(_x), y(_y) {}
-
-        real_t x;
-        real_t y;
-    };
+    using real2d = Vector2f;
+    using real3d = Vector3f;
 
     struct indices {
         indices(size_t _v, size_t _vt = std::string::npos, size_t _vn = std::string::npos) : v(_v), vt(_vt), vn(_vn) {}
+        indices(size_t *va): v(va[0]), vt(va[1]), vn(va[2]) {}
 
         size_t v;
         size_t vt;
@@ -60,11 +66,12 @@ namespace objloader {
 
         real3d getVertex(uint64_t ind);
 
-        bool isSmooth();
+        int getSmooth();
 
         std::string getName();
 
-    private:
+        void print();
+
         std::vector<real3d> vertices;                       // v
         std::vector<real3d> texture_coord;                  // vt
         std::vector<real3d> normals;                        // vn
@@ -72,7 +79,7 @@ namespace objloader {
 
         std::string name; // g
 
-        bool smooth; // s
+        int smooth; // s
     };
 
     class Objloader {

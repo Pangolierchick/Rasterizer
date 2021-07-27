@@ -30,7 +30,7 @@ real3d Model::getVertex(uint64_t ind) {
     return vertices[ind];
 }
 
-bool Model::isSmooth() {
+int Model::getSmooth() {
     return smooth;
 }
 
@@ -51,14 +51,20 @@ Model Objloader::load(const std::string &filename, OBJLOADER_ERRORS &error) {
     std::string buff;
 
     while (std::getline(in, buff)) {
-        if (startsWith(buff, "v")) {
+        std::stringstream ss(buff);
+        char symb;
+
+        if (buff[0] == 'v') {
+            ss >> symb;
             std::vector<real3d> *output_vector = nullptr;
             size_t offset = 0;
 
             if (buff[1] == 'n') {
+                ss >> symb;
                 output_vector = &model.normals;
                 offset = 3;
             } else if (buff[1] == 't') {
+                ss >> symb;
                 output_vector = &model.texture_coord;
                 offset = 3;
             } else if (buff[1] == ' ') {
@@ -69,58 +75,65 @@ Model Objloader::load(const std::string &filename, OBJLOADER_ERRORS &error) {
                 return {};
             }
 
-            auto coords = splitString(buff.substr(offset));
+            real_t nums[3];
 
-            if (coords.size() < 3) {
-                error = OBJLOADER_ERRORS::NOT_ENOUGH_VERTEX_COORDINATES;
-                return {};
-            }
+            for (float & num : nums) {
+                ss >> num;
 
-            std::vector<real_t> nums;
-
-            try {
-                nums = toNumber(coords);
-            } catch (std::invalid_argument &e) {
-
-                error = OBJLOADER_ERRORS::BAD_COORDINATE;
-                return {};
+                if (!ss) {
+                    error = OBJLOADER_ERRORS::NOT_ENOUGH_VERTEX_COORDINATES;
+                    return {};
+                }
             }
 
             output_vector->emplace_back(nums[0], nums[1], nums[2]);
 
         } else if (startsWith(buff, "f ")) {
-            std::vector<std::string> coords = splitString(buff.substr(2));
+            // Only triangulated models are supported
+            ss >> symb;
 
-            if (coords.size() < 3) {
-                error = OBJLOADER_ERRORS::NOT_ENOUGH_VERTEX_COORDINATES;
-                return {};
-            }
+            size_t vtn[3];
+            std::vector<indices> ind;
+            ind.reserve(3);
 
-            std::vector<objloader::indices> ind;
+            std::string faces = buff.substr(2);
 
-            for (auto &i : coords) {
-                std::vector<std::string> indices = splitString(i, "/");
+            trimString(faces);
 
-                size_t vt = indices[1].empty() ? std::string::npos : std::stoul(indices[1]);
+            std::vector<std::string> coords = splitString(faces);
 
-                size_t vn;
-                if (indices.size() > 2) {
-                    vn = indices[2].empty() ? std::string::npos : std::stoul(indices[2]);
+            int count = 0;
+
+            for (auto &coord : coords) {
+                count++;
+
+                auto f = splitString(coord, "/");
+                size_t vertices[] = { std::string::npos, std::string::npos, std::string::npos };
+
+                for (size_t i = 0; i < f.size(); i++) {
+                    try {
+                        vertices[i] = std::stoul(f[i]);
+                    } catch (std::exception &e) {}
                 }
-                else
-                    vn = std::string::npos;
 
-                ind.emplace_back(std::stoul(indices[0]), vt, vn);
+                ind.emplace_back(vertices);
             }
 
             model.face_elements.push_back(ind);
 
+            if (count > 3) {
+                error = OBJLOADER_ERRORS::NOT_TRIANGULATED;
+                return {};
+            }
         } else if (startsWith(buff, "g ")) {
-            model.name = buff.substr(2);
+            if (buff.length() > 2)
+                model.name = buff.substr(2);
         } else if (startsWith(buff, "s ")) {
-            model.smooth = buff.find('1', 2) != std::string::npos;
-        } else if (startsWith(buff, "#")) {
-            continue;
+            try {
+                model.smooth = std::stoi(buff.substr(2));
+            } catch (std::exception &e) {
+                model.smooth = 0;
+            }
         }
     }
 
@@ -136,4 +149,46 @@ Model Objloader::load(const std::string &filename, OBJLOADER_ERRORS &error) {
 
     error = OBJLOADER_ERRORS::NO_ERROR;
     return model;
+}
+
+void Model::print() {
+    std::cout << "------------ " << "Normals" << " ------------" << "\n";
+
+    for (auto &i : normals) {
+        std::cout << i.x() << " " << i.y() << " " << i.z() << " " << "\n";
+    }
+
+    std::cout << "------------ " << "Textures" << " ------------" << "\n";
+
+    for (auto &i : texture_coord) {
+        std::cout << i.x() << " " << i.y() << " " << i.z() << " " << "\n";
+    }
+
+    std::cout << "------------ " << "Vertices" << " ------------" << "\n";
+
+    for (auto &i : vertices) {
+        std::cout << i.x() << " " << i.y() << " " << i.z() << " " << "\n";
+    }
+
+
+    std::cout << "------------ " << "Indices (v, vt, vn)" << " ------------" << "\n";
+
+    for (auto &i : face_elements) {
+        std::cout << "--------------group--------------\n";
+
+        for (auto &j : i) {
+            std::cout << j.v << " ";
+            if (j.vt != std::string::npos)
+                std::cout << j.vt << " ";
+            else
+                std::cout << "_" << " ";
+
+            if (j.vn != std::string::npos)
+                std::cout << j.vn;
+            else
+                std::cout << "_";
+
+            std::cout << "\n";
+        }
+    }
 }

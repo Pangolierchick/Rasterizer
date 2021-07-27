@@ -6,21 +6,14 @@
 
 std::vector<std::string> splitString(const std::string &s, const std::string &delimiter) {
     size_t pos_start = 0, pos_end, delim_len = delimiter.length();
-    std::string token;
+    static std::string token;
     std::vector<std::string> res;
-
-    while (s.substr(pos_start, pos_start + delim_len) == delimiter)
-        pos_start++;
 
     while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos) {
         token = s.substr(pos_start, pos_end - pos_start);
         pos_start = pos_end + delim_len;
 
-        if (token.empty()) {
-            res.emplace_back();
-        } else {
-            res.push_back(token);
-        }
+        res.push_back(token);
     }
 
     res.push_back(s.substr(pos_start));
@@ -48,4 +41,18 @@ std::vector<real_t> toNumber(const std::vector<std::string> &s) {
     }
 
     return out;
+}
+
+void trimString(std::string &str) {
+    size_t s = 0;
+    size_t e = str.length() - 1;
+
+    while (str[s] == ' ' && s < str.length())
+        s++;
+
+    while (str[e] == ' ' && e >= 0)
+        e--;
+
+    str.resize(e + 1);
+    str.erase(0, s);
 }

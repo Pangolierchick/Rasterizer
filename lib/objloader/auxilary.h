@@ -11,5 +11,6 @@
 #endif
 
 bool startsWith(const std::string &heap, const std::string &needle);
+void trimString(std::string &str);
 std::vector<std::string> splitString (const std::string& s, const std::string& delimiter=" ");
 std::vector<real_t> toNumber(const std::vector<std::string> &s);
