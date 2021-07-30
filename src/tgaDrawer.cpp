@@ -5,7 +5,7 @@
 
 tgaDrawer::tgaDrawer(TgaImage *image) : _pimage(image) {
     zbuffer = new float[image->width() * image->heigth()];
-    memset(zbuffer, -std::numeric_limits<float>::max(), image->width() * image->heigth() * sizeof(float));
+    std::fill_n(zbuffer, image->width() * image->heigth(), -std::numeric_limits<float>::max());
 }
 
 TgaColor tgaDrawer::getPixel(size_t x, size_t y) {
@@ -96,12 +96,15 @@ void tgaDrawer::triangle(Vector3f p1, Vector3f p2, Vector3f p3, TgaColor &c) {
     }
 }
 
-void tgaDrawer::triangle(Vector3f p1, Vector3f p2, Vector3f p3, TgaImage &texture, Vector3f texture_coord[], float intensity) {
+void tgaDrawer::triangle(Vector3f p1, Vector3f p2, Vector3f p3, TgaImage &texture, Vector3f texture_coord[],
+                         float intensity) {
     auto l_r = std::minmax({p1.x(), p2.x(), p3.x()});
     auto b_u = std::minmax({p1.y(), p2.y(), p3.y()});
 
-    auto t_l_r = std::minmax({texture_coord[0].x() * _pimage->width(), texture_coord[1].x() * _pimage->width(), texture_coord[2].x() * _pimage->width()});
-    auto t_b_u = std::minmax({texture_coord[0].y() * _pimage->heigth(), texture_coord[1].y() * _pimage->heigth(), texture_coord[2].y() * _pimage->heigth()});
+    auto t_l_r = std::minmax({texture_coord[0].x() * _pimage->width(), texture_coord[1].x() * _pimage->width(),
+                              texture_coord[2].x() * _pimage->width()});
+    auto t_b_u = std::minmax({texture_coord[0].y() * _pimage->heigth(), texture_coord[1].y() * _pimage->heigth(),
+                              texture_coord[2].y() * _pimage->heigth()});
 
     for (int j = b_u.first, tj = t_b_u.first; j < b_u.second; j++, tj++) {
         for (int i = l_r.first, ti = t_l_r.first; i < l_r.second; i++, ti++) {
@@ -113,14 +116,8 @@ void tgaDrawer::triangle(Vector3f p1, Vector3f p2, Vector3f p3, TgaImage &textur
                 p.z() += p2.z() * screen.y();
                 p.z() += p3.z() * screen.z();
 
-                if (zbuffer[int(p.x() + p.y() * _pimage->width())] < p.z()) {
+                if ((zbuffer[int(p.x() + p.y() * _pimage->width())] - p.z()) < 0.01f) {
                     zbuffer[int(p.x() + p.y() * _pimage->width())] = p.z();
-
-//                    std::cout << "vt1: " << texture_coord[0] << "\n";
-//                    std::cout << "vt2: " << texture_coord[1] << "\n";
-//                    std::cout << "vt3: " << texture_coord[2] << "\n";
-
-//                    std::cout << "U, V = " << u << " " << v << "\n";
 
                     auto c = texture.get(ti, tj);
                     setPixel(i, j, c * intensity);
@@ -128,4 +125,40 @@ void tgaDrawer::triangle(Vector3f p1, Vector3f p2, Vector3f p3, TgaImage &textur
             }
         }
     }
+}
+
+void tgaDrawer::model(objloader::Model &model, TgaImage &texture) {
+    Vector3f light = {0, 0, -1};
+
+    for (size_t i = 0; i < model.face_elements.size(); i++) {
+        auto v1 = model.vertices[model.face_elements[i][0].v - 1];
+        auto v2 = model.vertices[model.face_elements[i][1].v - 1];
+        auto v3 = model.vertices[model.face_elements[i][2].v - 1];
+
+        Vector3f tex_ver[] = {model.texture_coord[model.face_elements[i][0].vt - 1],
+                              model.texture_coord[model.face_elements[i][1].vt - 1],
+                              model.texture_coord[model.face_elements[i][2].vt - 1]};
+
+        auto wv1 = v1;
+        auto wv2 = v2;
+        auto wv3 = v3;
+
+        v1 = project(v1);
+        v2 = project(v2);
+        v3 = project(v3);
+
+        Vector3f n = (wv3 - wv1) ^ (wv2 - wv1);
+        n.normalize();
+
+        float intensity = n * light;
+
+        if (intensity > 0)
+            triangle(v1, v2, v3, texture, tex_ver, intensity);
+    }
+}
+
+Vector3f tgaDrawer::project(const Vector3f &vec) {
+    std::cout << "z = " << vec.z() << "\n";
+    return Vector3f(int((vec.x() + 1.0f) * _pimage->width() / 2.0f + 0.5f),
+                    int((vec.y() + 1.0f) * _pimage->heigth() / 2.0f + 0.5f), vec.z());
 }

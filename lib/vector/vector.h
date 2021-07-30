@@ -98,16 +98,18 @@ public:
     }
 
     T &x() { return _x; }
-
     T &y() { return _y; }
-
     T &z() { return _z; }
 
     T x() const { return _x; }
-
     T y() const { return _y; }
-
     T z() const { return _z; }
+
+    T &u() { return _x; }
+    T &v() { return _y; }
+
+    T u() const { return _x; }
+    T v() const { return _y; }
 
     T &operator[](size_t i) {
         switch (i) {

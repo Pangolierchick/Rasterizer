@@ -16,9 +16,6 @@ int main() {
     objloader::Objloader loader;
     objloader::OBJLOADER_ERRORS error;
 
-    TgaColor white = {0xff, 0xff, 0xff};
-
-
     TgaImage texture;
     std::cout << "Reading\n";
 
@@ -37,34 +34,7 @@ int main() {
 
     std::cout << "Error: " << error << "\n";
 
-    Vector3f light = {0, 0, -1};
-
-//    model.print();
-
-    for (size_t i = 0; i < model.face_elements.size(); i++) {
-        auto v1 = model.vertices[model.face_elements[i][0].v - 1];
-        auto v2 = model.vertices[model.face_elements[i][1].v - 1];
-        auto v3 = model.vertices[model.face_elements[i][2].v - 1];
-
-        Vector3f tex_ver[] = {model.texture_coord[model.face_elements[i][0].vt - 1],
-                              model.texture_coord[model.face_elements[i][1].vt - 1],
-                              model.texture_coord[model.face_elements[i][2].vt - 1]};
-
-        auto wv1 = v1;
-        auto wv2 = v2;
-        auto wv3 = v3;
-
-        project(v1, 1024, 1024);
-        project(v2, 1024, 1024);
-        project(v3, 1024, 1024);
-
-         Vector3f n = (wv3 - wv1) ^ (wv2 - wv1);
-         n.normalize();
-
-         float intensity = n * light;
-//             auto c = TgaColor(0xff * intensity, 0xff * intensity, 0xff * intensity, 0xff);
-         drawer.triangle(v1, v2, v3, texture, tex_ver, intensity);
-    }
+    drawer.model(model, texture);
 
     img->dump("test.tga");
 
