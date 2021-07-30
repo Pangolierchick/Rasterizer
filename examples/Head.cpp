@@ -44,21 +44,17 @@ int main() {
         project(v2, 1024, 1024);
         project(v3, 1024, 1024);
 
-         Vector3f n = (wv3 - wv1) ^ (wv2 - wv1);
-         n.normalize();
+        Vector3f n = (wv3 - wv1) ^ (wv2 - wv1);
+        n.normalize();
 
-         float intensity = n * light;
+        float intensity = n * light;
 
-         std::cout << "Intensity: " << intensity << "\n";
+        std::cout << "Intensity: " << intensity << "\n";
 
-         std::cout << "v1: " << v1 << "\n";
-         std::cout << "v2: " << v2 << "\n";
-         std::cout << "v3: " << v3 << "\n";
-
-         if (intensity > 0) {
-             auto c = TgaColor(0xff * intensity, 0xff * intensity, 0xff * intensity, 0xff);
-             drawer.triangle(v1, v2, v3, c);
-         }
+        if (intensity > 0) {
+            auto c = TgaColor(0xff * intensity, 0xff * intensity, 0xff * intensity, 0xff);
+            drawer.triangle(v1, v2, v3, c);
+        }
     }
 
     img->dump("test.tga");

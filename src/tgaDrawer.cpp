@@ -2,6 +2,11 @@
 #include "geometry.h"
 #include "tgaDrawer.h"
 
+tgaDrawer::tgaDrawer(TgaImage *image): _pimage(image) {
+    zbuffer = new float[image->width() * image->heigth()];
+    memset(zbuffer, -std::numeric_limits<float>::max(), image->width() * image->heigth() * sizeof(float));
+}
+
 TgaColor tgaDrawer::getPixel(size_t x, size_t y) {
     if (_pimage)
         return _pimage->get(x, y);
@@ -73,11 +78,18 @@ void tgaDrawer::triangle(Vector3f p1, Vector3f p2, Vector3f p3, TgaColor &c) {
     for (int j = b_u.first; j < b_u.second; j++) {
         for (int i = l_r.first; i < l_r.second; i++) {
             bool inside = true;
-            Vector3f p(i, j);
+            Vector3f p(i, j, 0);
             Vector3f screen = barycentric(p1, p2, p3, p);
 
             if (screen.x() >= 0 && screen.y() >= 0 && screen.z() >= 0) {
-                setPixel(i, j, c);
+                p.z() += p1.z() * screen.x();
+                p.z() += p2.z() * screen.y();
+                p.z() += p3.z() * screen.z();
+
+                if (zbuffer[int(p.x() + p.y() * _pimage->width())] < p.z()) {
+                    zbuffer[int(p.x() + p.y() * _pimage->width())] = p.z();
+                    setPixel(i, j, c);
+                }
             }
         }
     }

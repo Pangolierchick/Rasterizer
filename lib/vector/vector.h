@@ -21,15 +21,27 @@ public:
     }
 
     T &x() { return _x; }
+
     T &y() { return _y; }
 
     T x() const { return _x; }
+
     T y() const { return _y; }
 
-    Vector2& operator=(const Vector2 &v) { _x = v._x; _y = v._y; return *this; }
-    Vector2& operator=(Vector2 &&v)  noexcept { _x = v._x; _y = v._y; return *this; }
+    Vector2 &operator=(const Vector2 &v) {
+        _x = v._x;
+        _y = v._y;
+        return *this;
+    }
+
+    Vector2 &operator=(Vector2 &&v) noexcept {
+        _x = v._x;
+        _y = v._y;
+        return *this;
+    }
 
     Vector2 operator+(const Vector2 &v) { return Vector2(_x + v._x, _y + v._y); }
+
     Vector2 operator-(const Vector2 &v) { return Vector2(_x - v._x, _y - v._y); }
 
     T operator*(const Vector2 &v) { return _x * v._x + _y * v._y; }
@@ -70,7 +82,7 @@ class Vector3 {
 public:
     Vector3() : _x(0), _y(0), _z(0) {}
 
-    Vector3(T x, T y, T z=1) : _x(x), _y(y), _z(z) {}
+    Vector3(T x, T y, T z = 1) : _x(x), _y(y), _z(z) {}
 
     Vector3(Vector3 &&v) noexcept {
         _x = v._x;
@@ -86,14 +98,18 @@ public:
     }
 
     T &x() { return _x; }
+
     T &y() { return _y; }
+
     T &z() { return _z; }
 
     T x() const { return _x; }
+
     T y() const { return _y; }
+
     T z() const { return _z; }
 
-    T& operator[](size_t i) {
+    T &operator[](size_t i) {
         switch (i) {
             case 0:
                 return _x;
@@ -115,7 +131,16 @@ public:
         }
     }
 
-    Vector3& operator=(const Vector3 &v)  noexcept { _x = v._x; _y = v._y; _z = v._z; return *this; }
+    Vector3 &operator=(const Vector3 &v) noexcept {
+        _x = v._x;
+        _y = v._y;
+        _z = v._z;
+        return *this;
+    }
+
+    Vector3 operator^(const Vector3 &v) noexcept {
+        return Vector3(_y * v._z - _z * v._y, _z * v._x - _x * v._z, _x * v._y - _y * v._x);
+    }
 
     Vector3 operator+(const Vector3 &v) { return Vector3(_x + v._x, _y + v._y, _z + v._z); }
 

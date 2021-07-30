@@ -50,37 +50,44 @@ Model Objloader::load(const std::string &filename, OBJLOADER_ERRORS &error) {
 
     std::string buff;
 
+    size_t line = 0;
+
     while (std::getline(in, buff)) {
         std::stringstream ss(buff);
         char symb;
+        line++;
 
         if (buff[0] == 'v') {
             ss >> symb;
             std::vector<real3d> *output_vector = nullptr;
-            size_t offset = 0;
+            size_t need = 0;
 
             if (buff[1] == 'n') {
                 ss >> symb;
                 output_vector = &model.normals;
-                offset = 3;
+                need = 3;
             } else if (buff[1] == 't') {
                 ss >> symb;
                 output_vector = &model.texture_coord;
-                offset = 3;
+                need = 1;
             } else if (buff[1] == ' ') {
                 output_vector = &model.vertices;
-                offset = 2;
+                need = 3;
             } else {
                 error = OBJLOADER_ERRORS::UNKNOWN_TOKEN;
                 return {};
             }
 
-            real_t nums[3];
+            real_t nums[3] = { -1, -1, -1 };
 
-            for (float & num : nums) {
-                ss >> num;
+            for (size_t i = 0; i < 3; i++) {
+                ss >> nums[i];
 
                 if (!ss) {
+                    if (i >= need - 1)
+                        break;
+
+                    std::cerr << "Not enough vertices on line " << line << "\n";
                     error = OBJLOADER_ERRORS::NOT_ENOUGH_VERTEX_COORDINATES;
                     return {};
                 }
@@ -122,6 +129,7 @@ Model Objloader::load(const std::string &filename, OBJLOADER_ERRORS &error) {
             model.face_elements.push_back(ind);
 
             if (count > 3) {
+                std::cerr << "Not triangilated on line " << line << "\n";
                 error = OBJLOADER_ERRORS::NOT_TRIANGULATED;
                 return {};
             }

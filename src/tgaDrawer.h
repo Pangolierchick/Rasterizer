@@ -5,7 +5,7 @@
 
 class tgaDrawer : public abstractDrawer {
 public:
-    tgaDrawer(TgaImage *image): _pimage(image) { }
+    tgaDrawer(TgaImage *image);
     ~tgaDrawer() override {}
 
     TgaColor getPixel(size_t x, size_t y) override;
@@ -16,6 +16,7 @@ public:
 
 private:
     std::shared_ptr<TgaImage> _pimage;
+    float *zbuffer;
 };
 
 
