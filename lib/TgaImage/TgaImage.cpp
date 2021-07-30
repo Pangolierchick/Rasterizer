@@ -36,8 +36,8 @@ void TgaImage::load(const std::string &filename) {
         throw TgaException("Error occured while reading header.");
     }
 
-    _width = header.width;
-    _height = header.height;
+    _width   = header.width;
+    _height  = header.height;
     _bytespp = header.bitsperpixel >> 3;
 
     if (_bytespp != GRAYSCALE && _bytespp != RGB && _bytespp != RGBA) {
@@ -46,6 +46,8 @@ void TgaImage::load(const std::string &filename) {
     }
 
     size_t bytes = _width * _height * _bytespp;
+
+    colormap.resize(bytes);
 
     if (header.datatypecode == 3 || header.datatypecode == 2) {
         in.read(reinterpret_cast<char *>(colormap.data()), bytes);
@@ -71,9 +73,9 @@ void TgaImage::load(const std::string &filename) {
 }
 
 void TgaImage::loadRle(std::ifstream &in) {
-    size_t pixelcount = _width * _height;
+    size_t pixelcount   = _width * _height;
     size_t currentpixel = 0;
-    size_t currentbyte = 0;
+    size_t currentbyte  = 0;
 
     TgaColor color{};
 
@@ -112,7 +114,7 @@ void TgaImage::loadRle(std::ifstream &in) {
 
             for (size_t i = 0; i < chunkheader; i++) {
                 for (size_t t = 0; t < _bytespp; t++)
-                    color[currentbyte] = color[t];
+                    colormap[currentbyte++] = color[t];
 
                 currentpixel++;
 

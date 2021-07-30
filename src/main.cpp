@@ -5,8 +5,8 @@
 #include "objloader.h"
 
 void project(Vector3f &v, int w, int h) {
-    v.x() = (v.x() + 1.0f) * (w / 2.0f);
-    v.y() = (v.y() + 1.0f) * (h / 2.0f);
+    v.x() = (v.x() + 1.0f) * (w / 2.0f + 0.5f);
+    v.y() = (v.y() + 1.0f) * (h / 2.0f + 0.5f);
 }
 
 int main() {
@@ -17,6 +17,16 @@ int main() {
     objloader::OBJLOADER_ERRORS error;
 
     TgaColor white = {0xff, 0xff, 0xff};
+
+
+    TgaImage texture;
+    std::cout << "Reading\n";
+
+    texture.load("/Users/kirill/Study/my_own_study/Rasterizer/assets/textures/head.tga");
+
+    std::cout << "Done.\n";
+    printf("Texture loaded: %zu %zu %zu\n", texture.width(), texture.heigth(), texture.bytespp());
+    texture.flipV();
 
     auto s = clock();
 
@@ -36,6 +46,10 @@ int main() {
         auto v2 = model.vertices[model.face_elements[i][1].v - 1];
         auto v3 = model.vertices[model.face_elements[i][2].v - 1];
 
+        Vector3f tex_ver[] = {model.texture_coord[model.face_elements[i][0].vt - 1],
+                              model.texture_coord[model.face_elements[i][1].vt - 1],
+                              model.texture_coord[model.face_elements[i][2].vt - 1]};
+
         auto wv1 = v1;
         auto wv2 = v2;
         auto wv3 = v3;
@@ -48,17 +62,8 @@ int main() {
          n.normalize();
 
          float intensity = n * light;
-
-         std::cout << "Intensity: " << intensity << "\n";
-
-         std::cout << "v1: " << v1 << "\n";
-         std::cout << "v2: " << v2 << "\n";
-         std::cout << "v3: " << v3 << "\n";
-
-         if (intensity > 0) {
-             auto c = TgaColor(0xff * intensity, 0xff * intensity, 0xff * intensity, 0xff);
-             drawer.triangle(v1, v2, v3, c);
-         }
+//             auto c = TgaColor(0xff * intensity, 0xff * intensity, 0xff * intensity, 0xff);
+         drawer.triangle(v1, v2, v3, texture, tex_ver, intensity);
     }
 
     img->dump("test.tga");
